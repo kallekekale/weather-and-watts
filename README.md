@@ -1,6 +1,6 @@
 # weather-and-watts
 
-> **Status: early development** — FMI weather and Fingrid electricity ingestion is working. Everything else is in progress or planned. The architecture and scope reflect the current direction, but may change as the project goes on.
+> **Status: early development** — Ingestion is working. Everything else is in progress or planned. The architecture and scope reflect the current direction, but may change as the project goes on.
 
 Correlates Finnish electricity spot prices, power generation, and weather observations. As a bonus layer, a simple ML model forecasts wind power production using capacity weighted wind speed observations from stations near major wind farm regions.
 
