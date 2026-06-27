@@ -1,5 +1,5 @@
--- The simplest possible staging model: read the raw price rows, rename the
--- columns to clearer names, and expose them as a clean view.
+-- Read the raw price rows, rename the columns to clearer names,
+-- and expose them as a clean view.
 
 select
     time  as price_at,
