@@ -1,4 +1,3 @@
-
 select
     station_id,
     time as observed_at,
