@@ -1,7 +1,3 @@
--- Pivot FMI weather from long format (one row per station/time/parameter)
--- into wide format (one row per station/time, parameters as columns).
--- MAX(CASE ...) works because there is exactly one row per parameter per
--- group, and MAX ignores the NULLs the CASE produces for non-matching rows.
 
 select
     station_id,
