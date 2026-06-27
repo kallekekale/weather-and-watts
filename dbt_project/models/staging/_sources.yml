@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw rows landed as-is by the Python ingestion scripts."
+    schema: public
+    tables:
+      - name: weather
+        description: "FMI hourly observations, one row per station/time/parameter (long format)."
+      - name: generation
+        description: "Fingrid time series (wind production, consumption, wind forecast), keyed by dataset_id."
+      - name: prices
+        description: "ENTSO-E day-ahead spot price for Finland (EUR/MWh)."

@@ -1,0 +1,27 @@
+name: 'weather_and_watts'
+version: '1.0.0'
+config-version: 2
+
+# This profile name must match the top-level key in profiles.yml
+profile: 'weather_and_watts'
+
+# Where dbt looks for each type of file
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Default materializations per folder.
+# Anything under models/staging/ becomes a view; models/marts/ becomes a table.
+models:
+  weather_and_watts:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table

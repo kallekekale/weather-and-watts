@@ -1,0 +1,14 @@
+# Connection config for dbt. Values come from environment variables so no
+# secrets live in the repo; the second arg to env_var() is a local-dev default.
+weather_and_watts:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('PGHOST', 'localhost') }}"
+      port: "{{ env_var('PGPORT', '5432') | int }}"
+      user: "{{ env_var('PGUSER', 'postgres') }}"
+      password: "{{ env_var('PGPASSWORD', 'postgres') }}"
+      dbname: "{{ env_var('PGDATABASE', 'electricity') }}"
+      schema: "{{ env_var('DBT_SCHEMA', 'analytics') }}"
+      threads: 4
