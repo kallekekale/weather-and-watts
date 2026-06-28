@@ -1,6 +1,6 @@
 import requests
 from lxml import etree
-from datetime import timedelta
+from datetime import datetime, timedelta
 import psycopg2
 import psycopg2.extras
 from config import DB_DSN, ENTSO_E_API_KEY
@@ -29,15 +29,27 @@ def parse_prices(xml_bytes):
     rows = []
     for period in root.findall(".//ns:Period", NS):
         start = period.findtext("ns:timeInterval/ns:start", namespaces=NS)
-        resolution = period.findtext("ns:resolution", namespaces=NS)
-        step = _parse_resolution(resolution)
-        from datetime import datetime
+        end = period.findtext("ns:timeInterval/ns:end", namespaces=NS)
+        step = _parse_resolution(period.findtext("ns:resolution", namespaces=NS))
         period_start = datetime.fromisoformat(start.replace("Z", "+00:00"))
-        for point in period.findall("ns:Point", NS):
-            position = int(point.findtext("ns:position", namespaces=NS))
-            price = point.findtext("ns:price.amount", namespaces=NS)
-            time = period_start + (position - 1) * step
-            rows.append({"time": time, "price": float(price)})
+        period_end = datetime.fromisoformat(end.replace("Z", "+00:00"))
+        total_slots = round((period_end - period_start) / step)
+
+        # ENTSO-E uses variable-sized blocks: a point's price is valid from its
+        # position until the next listed position. Read the points, then
+        # forward-fill every slot to produce a regular grid.
+        points = sorted(
+            (int(p.findtext("ns:position", namespaces=NS)),
+             float(p.findtext("ns:price.amount", namespaces=NS)))
+            for p in period.findall("ns:Point", NS)
+        )
+        for i, (position, price) in enumerate(points):
+            next_position = points[i + 1][0] if i + 1 < len(points) else total_slots + 1
+            for slot in range(position, next_position):
+                rows.append({
+                    "time": period_start + (slot - 1) * step,
+                    "price": price,
+                })
     return rows
 
 
