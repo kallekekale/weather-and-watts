@@ -61,7 +61,7 @@ ENTSO-E (XML)       Fingrid (JSON)       FMI (WFS/XML)
 - [x] Fingrid generation ingestion
 - [x] ENTSO-E spot price ingestion
 - [ ] Azure Blob Storage raw file backup (bronze)
-- [ ] dbt silver layer (cleaning, timezone harmonisation)
+- [x] dbt silver layer (cleaning, timezone harmonisation)
 - [ ] dbt gold layer (star schema)
 - [ ] Streamlit dashboard
 - [ ] Prefect orchestration

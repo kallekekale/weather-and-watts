@@ -1,6 +1,7 @@
 select
     station_id,
-    time as observed_at,
+    time                                as observed_at,
+    time at time zone 'Europe/Helsinki' as observed_at_local,
 
     max(case when parameter_name = 'TA_PT1H_AVG' then parameter_value end) as temp_c,
     max(case when parameter_name = 'WS_PT1H_AVG' then parameter_value end) as wind_speed_ms,

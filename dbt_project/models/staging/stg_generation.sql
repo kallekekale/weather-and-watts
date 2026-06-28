@@ -1,8 +1,9 @@
 select
     dataset_id,
-    start_time as generation_start,
-    end_time as generation_end,
-    value as value_mw,
+    start_time                                  as generation_start,
+    start_time at time zone 'Europe/Helsinki'   as generation_start_local,
+    end_time                                    as generation_end,
+    value                                       as value_mw,
 
     case dataset_id
         when 75  then 'wind_production'

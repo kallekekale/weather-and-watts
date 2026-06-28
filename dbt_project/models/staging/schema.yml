@@ -1,0 +1,73 @@
+version: 2
+
+models:
+  - name: stg_prices
+    description: >
+      Day-ahead electricity spot price for Finland, one row per market time
+      unit. Timestamps are canonical UTC (timestamptz); *_local columns are
+      the Europe/Helsinki wall-clock equivalent for local-time analysis.
+    columns:
+      - name: price_at
+        description: "Timestamp the price applies to, canonical UTC."
+        tests:
+          - not_null
+          - unique
+      - name: price_at_local
+        description: "price_at expressed in Europe/Helsinki local wall-clock time."
+        tests:
+          - not_null
+      - name: price_eur_mwh
+        description: "Day-ahead spot price in EUR/MWh. May be zero or negative."
+        tests:
+          - not_null
+
+  - name: stg_weather
+    description: >
+      FMI hourly weather pivoted from long format (one row per
+      station/time/parameter) to wide format (one row per station/time).
+      The pivot uses MAX(CASE ...): the CASE yields NULL for non-matching
+      parameters and MAX ignores NULLs, so each column gets its one value.
+    columns:
+      - name: station_id
+        description: "FMI station identifier (fmisid)."
+        tests:
+          - not_null
+      - name: observed_at
+        description: "Hour the observation applies to, canonical UTC."
+        tests:
+          - not_null
+      - name: observed_at_local
+        description: "observed_at expressed in Europe/Helsinki local wall-clock time."
+        tests:
+          - not_null
+      - name: temp_c
+        description: "Air temperature in °C (TA_PT1H_AVG). Nullable when FMI reports NaN."
+      - name: wind_speed_ms
+        description: "Mean wind speed in m/s (WS_PT1H_AVG)."
+      - name: wind_gust_ms
+        description: "Max wind speed / gust in m/s (WS_PT1H_MAX)."
+      - name: wind_direction_deg
+        description: "Mean wind direction in degrees (WD_PT1H_AVG)."
+
+  - name: stg_generation
+    description: "Fingrid generation/consumption time series, one row per series and interval."
+    columns:
+      - name: series
+        description: "Human-readable label decoded from dataset_id."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['wind_production', 'total_consumption', 'wind_forecast']
+      - name: generation_start
+        description: "Interval start timestamp, canonical UTC."
+        tests:
+          - not_null
+      - name: generation_start_local
+        description: "generation_start expressed in Europe/Helsinki local wall-clock time."
+        tests:
+          - not_null
+      - name: value_mw
+        description: "Measured value in megawatts."
+        tests:
+          - not_null
