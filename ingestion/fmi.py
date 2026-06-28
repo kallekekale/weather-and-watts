@@ -3,6 +3,7 @@ from lxml import etree
 import psycopg2
 import psycopg2.extras
 from config import DB_DSN
+from ingestion import blob
 
 def fetch_observations(station_id, start_time, end_time):
     start_time = start_time.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -21,6 +22,15 @@ def fetch_observations(station_id, start_time, end_time):
     res = requests.get(url, params=params)
     res.raise_for_status()
     return res.content
+
+def ingest(station_id, start_time, end_time):
+    """Fetch, archive the raw response to blob, parse, and load to Postgres."""
+    xml = fetch_observations(station_id, start_time, end_time)
+    blob.upload_raw("fmi", xml, "xml")
+    observations = parse_observations(xml, station_id)
+    save_to_postgres(observations)
+    return len(observations)
+
 
 def parse_observations(xml_bytes, station_id):
     root = etree.fromstring(xml_bytes)

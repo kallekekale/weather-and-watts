@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import psycopg2
 import psycopg2.extras
 from config import DB_DSN, ENTSO_E_API_KEY
+from ingestion import blob
 
 BASE_URL = "https://web-api.tp.entsoe.eu/api"
 FINLAND = "10YFI-1--------U"
@@ -22,6 +23,15 @@ def fetch_prices(start_time, end_time):
     res = requests.get(BASE_URL, params=params)
     res.raise_for_status()
     return res.content
+
+
+def ingest(start_time, end_time):
+    """Fetch, archive the raw response to blob, parse, and load to Postgres."""
+    xml = fetch_prices(start_time, end_time)
+    blob.upload_raw("entso_e", xml, "xml")
+    rows = parse_prices(xml)
+    save_to_postgres(rows)
+    return len(rows)
 
 
 def parse_prices(xml_bytes):

@@ -1,7 +1,9 @@
+import json
 import requests
 import psycopg2
 import psycopg2.extras
 from config import DB_DSN, FINGRID_API_KEY
+from ingestion import blob
 
 DATASETS = {
     75: "wind_production",
@@ -34,6 +36,15 @@ def fetch_data(dataset_id, start_time, end_time):
         page += 1
 
     return records
+
+
+def ingest(dataset_id, start_time, end_time):
+    """Fetch, archive the raw response to blob, parse, and load to Postgres."""
+    records = fetch_data(dataset_id, start_time, end_time)
+    blob.upload_raw("fingrid", json.dumps(records), "json")
+    rows = parse_data(records, dataset_id)
+    save_to_postgres(rows)
+    return len(rows)
 
 
 def parse_data(records, dataset_id):
