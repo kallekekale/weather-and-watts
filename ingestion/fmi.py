@@ -5,6 +5,12 @@ import psycopg2.extras
 from config import DB_DSN
 from ingestion import blob
 
+# FMI weather stations to ingest, keyed by fmisid.
+STATIONS = {
+    100971: "Helsinki Kaisaniemi",
+    100968: "Helsinki Vantaa Airport",
+}
+
 
 def fetch_observations(station_id, start_time, end_time):
     start_time = start_time.strftime("%Y-%m-%dT%H:%M:%SZ")
