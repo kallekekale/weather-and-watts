@@ -55,6 +55,14 @@ Optional: scikit-learn wind-production forecast.
 | Dashboard        | Streamlit                                                               |
 | ML (optional)    | scikit-learn                                                            |
 
+## Architectural Decisions
+
+- **Medallion layering: keep raw data immutable and transform in dbt.** By storing every API response in Azure Blob before parsing, the pipeline has a proper bronze layer. Python only ingests data, while dbt handles all cleaning, pivoting, and timezone conversion in the silver and gold layers. If the transformation logic changes, there's no need to call the API again; the raw data is already there and can just be reprocessed.
+
+- **Timestamps kept in UTC, with Helsinki local-time columns alongside.** Everything joins on UTC, which keeps the sources aligned and avoids the daylight saving time headaches. The `*_local` columns are just for reading the data in Finnish time.
+
+- **Hourly data in the gold layer.** The three data sources update at different frequencies (15min prices, 3min consumption, hourly weather). The gold facts aggregate everything onto a common hourly grid so the three can be correlated easily.
+
 ## Roadmap
 
 - [x] FMI weather ingestion
