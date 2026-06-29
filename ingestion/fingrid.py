@@ -64,8 +64,15 @@ def save_to_postgres(rows):
         return
     with psycopg2.connect(DB_DSN) as con:
         with con.cursor() as cur:
-            psycopg2.extras.execute_values(cur, """
+            psycopg2.extras.execute_values(
+                cur,
+                """
                 INSERT INTO generation (dataset_id, start_time, end_time, value)
                 VALUES %s
                 ON CONFLICT (dataset_id, start_time) DO NOTHING
-            """, [(r["dataset_id"], r["start_time"], r["end_time"], r["value"]) for r in rows])
+            """,
+                [
+                    (r["dataset_id"], r["start_time"], r["end_time"], r["value"])
+                    for r in rows
+                ],
+            )

@@ -16,8 +16,7 @@ def upload_raw(source, content, ext):
 
     fetched_at = datetime.now(UTC)
     blob_name = (
-        f"{source}/{fetched_at:%Y/%m/%d}/"
-        f"{source}_{fetched_at:%Y%m%dT%H%M%SZ}.{ext}"
+        f"{source}/{fetched_at:%Y/%m/%d}/{source}_{fetched_at:%Y%m%dT%H%M%SZ}.{ext}"
     )
     service = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
     container = service.get_container_client(BLOB_CONTAINER)

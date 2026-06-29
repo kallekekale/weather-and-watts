@@ -49,17 +49,21 @@ def parse_prices(xml_bytes):
         # position until the next listed position. Read the points, then
         # forward-fill every slot to produce a regular grid.
         points = sorted(
-            (int(p.findtext("ns:position", namespaces=NS)),
-             float(p.findtext("ns:price.amount", namespaces=NS)))
+            (
+                int(p.findtext("ns:position", namespaces=NS)),
+                float(p.findtext("ns:price.amount", namespaces=NS)),
+            )
             for p in period.findall("ns:Point", NS)
         )
         for i, (position, price) in enumerate(points):
             next_position = points[i + 1][0] if i + 1 < len(points) else total_slots + 1
             for slot in range(position, next_position):
-                rows.append({
-                    "time": period_start + (slot - 1) * step,
-                    "price": price,
-                })
+                rows.append(
+                    {
+                        "time": period_start + (slot - 1) * step,
+                        "price": price,
+                    }
+                )
     return rows
 
 
@@ -76,8 +80,12 @@ def save_to_postgres(rows):
         return
     with psycopg2.connect(DB_DSN) as con:
         with con.cursor() as cur:
-            psycopg2.extras.execute_values(cur, """
+            psycopg2.extras.execute_values(
+                cur,
+                """
                 INSERT INTO prices (time, price)
                 VALUES %s
                 ON CONFLICT (time) DO NOTHING
-            """, [(r["time"], r["price"]) for r in rows])
+            """,
+                [(r["time"], r["price"]) for r in rows],
+            )
