@@ -1,6 +1,6 @@
 # weather-and-watts
 
-> **Status: early development** — Ingestion is working. Everything else is in progress or planned. The architecture and scope reflect the current direction, but may change as the project goes on.
+> **Status: in development.** The pipeline runs end to end: ingestion, bronze (Azure Blob), dbt silver, and a dbt gold star schema. Dashboard, orchestration, and cloud deployment are next.
 
 Correlates Finnish electricity spot prices, power generation, and weather observations. As an optional bonus layer, a simple ML model forecasts wind power production using capacity weighted wind speed observations from stations near major wind farm regions.
 
@@ -62,7 +62,7 @@ Optional: scikit-learn wind-production forecast.
 - [x] ENTSO-E spot price ingestion
 - [x] Azure Blob Storage raw file backup (bronze)
 - [x] dbt silver layer (cleaning, timezone harmonisation)
-- [ ] dbt gold layer (star schema)
+- [x] dbt gold layer (star schema)
 - [ ] Streamlit dashboard
 - [ ] Airflow orchestration (local, astro CLI)
 - [ ] Azure Database for PostgreSQL deployment
