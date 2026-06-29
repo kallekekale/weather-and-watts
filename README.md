@@ -2,7 +2,7 @@
 
 > **Status: early development** — Ingestion is working. Everything else is in progress or planned. The architecture and scope reflect the current direction, but may change as the project goes on.
 
-Correlates Finnish electricity spot prices, power generation, and weather observations. As a bonus layer, a simple ML model forecasts wind power production using capacity weighted wind speed observations from stations near major wind farm regions.
+Correlates Finnish electricity spot prices, power generation, and weather observations. As an optional bonus layer, a simple ML model forecasts wind power production using capacity weighted wind speed observations from stations near major wind farm regions.
 
 ## Architecture
 
@@ -11,13 +11,12 @@ ENTSO-E (XML)       Fingrid (JSON)       FMI (WFS/XML)
      |                    |                    |
      +--------------------+--------------------+
                           |
-              Python + Azure Functions
-              (scheduled ingestion)
+                  Python ingestion
                           |
               +-----------+-----------+
               |                       |
-    Azure Blob Storage         Azure PostgreSQL
-    (raw files as-is)          (raw rows, bronze)
+    Azure Blob Storage          PostgreSQL
+    (raw files, bronze)         (raw rows)
                                        |
                               dbt transformations
                               (silver: cleaned,
@@ -26,11 +25,12 @@ ENTSO-E (XML)       Fingrid (JSON)       FMI (WFS/XML)
                               dbt star schema
                               (gold: facts + dims)
                                        |
-                         +-------------+-------------+
-                         |                           |
-                   Streamlit dashboard         scikit-learn
-                   (prices, generation,        (wind production
-                    weather, correlations)      forecast vs. Fingrid)
+                              Streamlit dashboard
+                              (prices, generation,
+                               weather, correlations)
+
+Orchestration: Airflow (local).   CI/CD: GitHub Actions.
+Optional: scikit-learn wind-production forecast.
 ```
 
 ## Data Sources
@@ -43,17 +43,17 @@ ENTSO-E (XML)       Fingrid (JSON)       FMI (WFS/XML)
 
 ## Tech Stack
 
-| Layer            | Tool                          |
-| ---------------- | ----------------------------- |
-| Ingestion        | Python, Azure Functions       |
-| Raw storage      | Azure Blob Storage            |
-| Database         | Azure Database for PostgreSQL |
-| Transformation   | dbt                           |
-| Orchestration    | Prefect                       |
-| CI/CD            | GitHub Actions                |
-| Containerisation | Docker                        |
-| Dashboard        | Streamlit                     |
-| ML               | scikit-learn                  |
+| Layer            | Tool                                                                    |
+| ---------------- | ----------------------------------------------------------------------- |
+| Ingestion        | Python                                                                  |
+| Raw storage      | Azure Blob Storage (bronze)                                             |
+| Database         | PostgreSQL (local Docker; Azure Database for PostgreSQL for deployment) |
+| Transformation   | dbt                                                                     |
+| Orchestration    | Airflow (local, astro CLI)                                              |
+| CI/CD            | GitHub Actions                                                          |
+| Containerisation | Docker                                                                  |
+| Dashboard        | Streamlit                                                               |
+| ML (optional)    | scikit-learn                                                            |
 
 ## Roadmap
 
@@ -64,7 +64,7 @@ ENTSO-E (XML)       Fingrid (JSON)       FMI (WFS/XML)
 - [x] dbt silver layer (cleaning, timezone harmonisation)
 - [ ] dbt gold layer (star schema)
 - [ ] Streamlit dashboard
-- [ ] Prefect orchestration
-- [ ] Azure Functions deployment
+- [ ] Airflow orchestration (local, astro CLI)
+- [ ] Azure Database for PostgreSQL deployment
 - [ ] GitHub Actions CI/CD
-- [ ] ML wind production forecast
+- [ ] ML wind production forecast (optional bonus)
